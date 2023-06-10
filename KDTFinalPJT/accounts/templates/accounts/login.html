@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+{% include 'nav.html' %}
+
+<div class="container login">
+    <form class="login-form p-5" action="" method="POST">
+        <h4 class="text-center mb-4">로그인</h4>
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label" for="id_username">사용자 이름</label>
+            <input type="text" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" class="form-control" placeholder="사용자 이름" required="" id="id_username">
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="id_password">비밀번호</label>
+            <input type="password" name="password" autocomplete="current-password" class="form-control" placeholder="비밀번호" required="" id="id_password">
+        </div>
+        <input class="btn btn--main--reverse w-100 mb-3" type="submit" value="로그인하기">
+        <div class="d-flex justify-content-center">
+            <a class="login-help" href="{% url 'accounts:login_help' %}">로그인에 어려움이 있으신가요?</a>
+        </div>
+    </form>
+</div>
+
+{% endblock content %}
+  

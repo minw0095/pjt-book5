@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+{% include 'nav.html' %}
+
+<!-- Book-visual -->
+<section class="book-visual"></section>
+
+
+<!-- Book-cover -->
+<div class="book-cover">
+  <div class="book__image">
+    <img src="{{ book.bookcover }}" alt="book-image">
+  </div>
+  <div class="book__title">
+    <h5>{{ book.bookname }}</h5>
+  </div>
+  <div class="book__auther">
+    <p>{{ book.authors }}</p>
+  </div>
+</div>
+
+<!-- Book-detail -->
+<section class="book-detail">
+  <!-- Book-info -->
+  <div class="book-info">
+    <div class="container">
+
+      <!-- Book-info-top -->
+      <div class="book-info-top">
+        <div class="book-info-top-wrap">
+          <div class="count-box">
+            <div class="review-count">
+              <h5>리뷰 수</h5>
+              <span>{{ book_reviews.count }}</span>
+            </div>
+            <div class="like-count">
+              <h5>좋아요 수</h5>
+              <span id='like-count'> {{ book.like_user.all.count}} </span>
+            </div>
+          </div>
+          <div class="buy-btn">
+            {% if request.user.is_authenticated %}
+            <a href="http://isearch.interpark.com/isearch?q={{book_url}}" class="btn btn--main--reverse">구매하기</a>
+            <span>
+              {% if request.user in book.like_user.all %}
+              <i id="like-btn" data-book-id="{{ book.pk }}" class="fa-solid fa-heart fa-2x"></i>
+              {% else %}
+              <i id="like-btn" data-book-id="{{ book.pk }}" class="fa-regular fa-heart fa-2x"></i>
+              {% endif %}
+            </span>
+            {% else %}
+            <a href="{% url 'accounts:login' %}">
+              <span style="margin-left: 30px; color: var(--dark-color); font-size: 14px;">로그인 이후 사용이 가능합니다.</span>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="review-writers">
+          <h5>리뷰 남긴 사람들</h5>
+          <div class="writer-profile">
+            {% for book_review in book_reviews_writer %}
+            <a href="{% url 'accounts:detail' book_review.user.pk %}">
+              <span><img src="{{ book_review.user.user_image }}" alt="review-writer-image"></span>
+            </a>
+            {% empty %}
+            <div class="my-5">
+              <p style="color: var(--gray-color); font-size: 14px;">리뷰를 남긴 사람이 없어요...</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <hr>
+      <br>
+
+      <!-- Book-info-bottom -->
+      <div class="book-info-bottom">
+        <div class="book-info-auther">
+          <h5>저자</h5>
+          <p>{{ book.authors }}</p>
+        </div>
+        <div class="book-info-description">
+          <h5>책 소개글</h5>
+          <p>{{book.description}}</p>
+        </div>
+        <div class="book-info-in">
+          <div class="d-flex">
+            <h5 class="me-3">책 정보</h5>
+            <div class="book-info-toggle">
+              <i class="fa-solid fa-sort-down fa-lg"></i>
+            </div>
+          </div>
+          <div class="book-info-in-wrap">
+            <table>
+              <tbody>
+                <tr>
+                  <th>원제</th>
+                  <td>{{ book.bookname }}</td>
+                </tr>
+                <tr>
+                  <th>출판사</th>
+                  <td>{{ book.publisher }}</td>
+                </tr>
+                <tr>
+                  <th>출간일</th>
+                  <td>{{ book.publication_year }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="book-info-db">도서 DB 제공 : <a href="https://data4library.kr/">도서관 정보나루</a></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- Book-reviews -->
+<section class="book-reviews">
+  <div class="container">
+
+    <!-- Book-reviews-top -->
+    <div class="book-reviews-top">
+      <h5>이 책의 다른 리뷰들</h5>
+      <!-- button: review create guide -->
+      <button type="button" class="btn btn--main" data-bs-toggle="modal" data-bs-target="#review-guide">
+        리뷰 작성
+      </button>
+      <!-- reivew-guide-modal -->
+      <div class="modal fade" id="review-guide" tabindex="-1" aria-labelledby="review-guide" aria-hidden="true">
+        <!-- modal-dialog -->
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!-- modal-body -->
+            <div class="modal-body">
+              <p class="record-text">기록할 유형을 선택해주세요 ✍️</p>
+              <!-- Record-wrap -->
+              <div class="record-wrap">
+                <!-- record-wording -->
+                <a href="{% url 'reviews:create_txt' book.pk %}">
+                  <div class="record-wording">
+                    <lord-icon
+                      src="https://cdn.lordicon.com/nocovwne.json"
+                      trigger="hover"
+                      colors="primary:#6c757d,secondary:#6c757d"
+                      stroke="30"
+                      style="width:250px;height:250px">
+                    </lord-icon>
+                    <h5 class="word">문장 기록</h5>
+                  </div>
+                </a>
+                <!-- record-photo -->
+                <a href="{% url 'reviews:create_img' book.pk %}">
+                  <div class="record-photo">
+                    <lord-icon
+                      src="https://cdn.lordicon.com/vixtkkbk.json"
+                      trigger="hover"
+                      colors="primary:#6c757d,secondary:#6c757d"
+                      stroke="30"
+                      style="width:250px;height:250px">
+                    </lord-icon>
+                    <h5>사진 기록</h5>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book-reviews-list -->
+    <div class="book-reviews-list">
+      <div class="swiper bookReviewSwiper">
+        <div class="swiper-wrapper">
+          {% for book_review in book_reviews_carousel %}
+            <div class="swiper-slide mb-5">
+              <div class="card p-0" style="cursor: pointer; background-color: {{ book_review.color }};" onclick="location.href='{% url 'reviews:detail' book_review.pk %}';">
+                {% if book_review.content != "" %}
+                <div class="review__item__content__quote">
+                  <div class="up-quote">
+                    <i class="fa-solid fa-quote-left fa-lg"></i>
+                  </div>
+                  <p class="bookReviewCardContent">{{ book_review.content }}</p>
+                  <div class="down-quote">
+                    <i class="fa-solid fa-quote-right fa-lg"></i>
+                  </div>
+                </div>
+                {% else %}
+                <img class="bookReviewCardImage border" style="border-radius: 12px;" src="{{ book_review.image.url }}" alt="">
+                {% endif %}
+              </div>
+            </div>
+          {% empty %}
+            <div class="mb-5 mt-3">
+              <p style="color: var(--gray-color); font-size: 14px;">리뷰를 남긴 사람이 없어요...</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+{% endblock content %}
+
+<!-- JS -->
+{% block js %}
+  <script>
+  // reivew-create-modal
+  const wording = document.querySelector(".record-wording");
+  const wordingIcon = wording.querySelector('lord-icon');
+  const wordingHtag = wording.querySelector('h5');
+  const photo = document.querySelector('.record-photo');
+  const photoIcon = photo.querySelector('lord-icon');
+  const photoHtag = photo.querySelector('h5');
+
+  wording.addEventListener('mouseenter', () => {
+      wordingIcon.setAttribute('colors', 'primary:#92B4EC,secondary:#92B4EC');
+      wordingHtag.style.color = '#92B4EC';
+  });
+  wording.addEventListener('mouseleave', () => {
+      wordingIcon.setAttribute('colors', 'primary:#6c757d,secondary:#6c757d');
+      wordingHtag.style.color = '#6c757d';
+  });
+  photo.addEventListener('mouseenter', () => {
+      photoIcon.setAttribute('colors', 'primary:#92B4EC,secondary:#92B4EC');
+      photoHtag.style.color = '#92B4EC';
+  });
+  photo.addEventListener('mouseleave', () => {
+      photoIcon.setAttribute('colors', 'primary:#6c757d,secondary:#6c757d');
+      photoHtag.style.color = '#6c757d';
+  });
+  </script>
+  
+  <script>
+    // 좋아요 비동기
+    const likeBtn = document.querySelector('#like-btn')
+    likeBtn.addEventListener('click', function (event) {
+      axios({
+        method: 'get',
+        url: `/books/${event.target.dataset.bookId}/like/`
+      })
+      .then(response => {
+        if (response.data.isLiked === true ){
+          event.target.classList.add('fa-solid')
+          event.target.classList.remove('fa-regular')
+        } else {
+          event.target.classList.add('fa-regular')
+          event.target.classList.remove('fa-solid')
+        }
+        const likeCount = document.querySelector('#like-count')
+        const likeCountTag = response.data.like_count
+        likeCount.innerText = likeCountTag
+      })
+    }) 
+  </script>
+{% endblock js %}

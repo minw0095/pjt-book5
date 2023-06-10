@@ -1,0 +1,206 @@
+{% extends 'base-onboarding.html' %}
+{% load static %}
+{% block content %}
+
+<!--온보딩 메인 박스 pc-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"/>
+
+<!-- onboarding intro -->
+
+<article class="onboarding-intro1">
+    <div class="onboarding-intro1-textbox">
+        <div class="onboarding-intro1-logobox">
+            <img src="static/img/logo-02.png">
+            <p> 성장하는 기록가들을 위한 독서 소셜 플랫폼</p>
+        </div>
+    </div>
+    <div class="onboarding-intro1-imgbox">
+        <img src="static/image/onboarding4.jpg">
+    </div>
+</article>
+
+<article class="onboarding-intro1-mo">
+    <div class="onboarding-intro1-mo-wrap">
+        <img class="onboarding-intro1-mo-bg" src="static/image/onboarding4.jpg">
+        <img class="onboarding-intro1-mo-lg" src="static/img/logo-02.png">
+    </div>
+</article>
+
+
+
+<div class="onboarding-mo-btn-div">
+    <a href="{% url 'books:main' %}">
+        <button class="btn btn--yellow--reverse"> 책:오 시작하기 </button>
+    </a>
+</div>
+
+<!--온보딩 카드 설명-->
+
+<div class="container mt-5">
+    <div class="mt-5">
+        <div class="onboarding-intro2">
+            <div class="onboarding-intro2-textbox">
+                <h1>READ </h1>
+                <p> 약 1,200권의 책이 있어요.<br> 책:오에서 당신의 책을 발견해 보세요.</p>
+            </div>
+            <div class="onboarding-intro2-imgbox">
+                <!-- <img src="https://via.placeholder.com/350" class="img-fluid"> -->
+                <video width="500" height="500" src="{% static 'video/온보딩리딩모.mov' %}" autoplay muted loop playsinline></video>
+            </div>
+        </div>
+        <div class="onboarding-intro2 mt-5">
+            <div class="onboarding-intro2-textbox">
+                <h1>RECORD </h1>
+                <p> 책을 읽고 당신의 문장을 기록해 보세요.<br> 문장뿐만 아니라 사진도 기록할 수 있어요.</p>
+            </div>
+            <div class="onboarding-intro2-imgbox">
+                <!-- <img src="https://via.placeholder.com/350" class="img-fluid"> -->
+                <video width="500" height="500" src="{% static 'video/온보딩레코딩모.mov' %}" autoplay muted loop playsinline></video>
+            </div>
+        </div>
+        <div class="onboarding-intro2 mt-5">
+            <div class="onboarding-intro2-textbox">
+                <h1>RECONNECT </h1>
+                <p> 다른 사람은 어떤 문장을 기억할까요?<br> 기록을 공유하면서 문장을 재발견 할 수 있어요.</p>
+            </div>
+            <div class="onboarding-intro2-imgbox">
+                <!-- <img src="https://via.placeholder.com/350" class="img-fluid"> -->
+                <video width="500" height="500" src="{% static 'video/온보딩리커넥트모.mov' %}" autoplay muted loop playsinline></video>
+            </div>
+        </div>
+        <div class="onboarding-intro2 mt-5">
+            <div class="onboarding-intro2-textbox">
+                <h1>RECOMMEND </h1>
+                <p> 당신은 어떤 책 속에 있나요?<br> 독서 모임을 통해 생각을 확장하세요.</p>
+            </div>
+            <div class="onboarding-intro2-imgbox">
+                <!-- <img src="https://via.placeholder.com/350" class="img-fluid"> -->
+                <video width="500" height="500" src="{% static 'video/온보딩모임모.mov' %}" autoplay muted loop playsinline></video>
+            </div>
+        </div>
+</div>
+
+<!--온보딩 슬라이드: pc에선 보이고, 모바일에선 1개 노출-->
+ 
+<div class="container mt-5">
+    <div class="slide-title mb-5">
+        <h3>NOW READING </h3>
+        <h5> 책:오 기록가들의 문장을 소개합니다. </h5>
+    </div>
+</div>
+
+    <!-- Book-reviews-list -->
+    <div class="book-reviews-list">
+        <div class="swiper bookReviewSwiper">
+          <div class="swiper-wrapper">
+            {% for review in reviews %}
+              <div class="swiper-slide mb-5">
+                <div class="card p-0" style="cursor: pointer; background-color: {{ review.color }};" onclick="location.href='{% url 'reviews:detail' review.pk %}';">
+                    {% if review.content != "" %}
+                    <div class="review__item__content__quote">
+                      <div class="up-quote">
+                        <i class="fa-solid fa-quote-left fa-lg"></i>
+                      </div>
+                      <p class="bookReviewCardContent">{{ review.content }}</p>
+                      <div class="down-quote">
+                        <i class="fa-solid fa-quote-right fa-lg"></i>
+                      </div>
+                    </div>
+                    {% else %}
+                    <img class="bookReviewCardImage border" style="border-radius: 12px;" src="{{ review.image.url }}" alt="">
+                    {% endif %}
+                </div>
+              </div>
+            {% empty %}
+              <div class="mb-5 mt-3">
+                <p style="color: var(--gray-color); font-size: 14px;">리뷰를 남긴 사람이 없어요...</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+</div>
+
+<!-- 온보딩 하단-->
+
+
+<article class="onboarding-mo-outro">
+    <div class="d-flex justify-content-center">
+        <img src = "static/img/logo-01.png">
+    </div>
+    <div class="onboarding-mo-outro-mp">
+        <p> 성장하는 기록가들을 위한 <br> 독서 소셜 플랫폼 </p>
+    </div>
+    <p class="onboarding-mo-outro-sp"> 책:오의 다른 이야기가 궁금하다면?</p>
+</article>
+
+
+<article class="onboarding-web-outro">
+        <img class="onboarding-web-outro-bg" src = "static/image/onboarding4.jpg">
+        <img class="onboarding-web-outro-logo" src = "static/img/logo-02.png">
+            <div class="onboarding-web-outro-text">
+                <div class="onboarding-web-outro-mp">
+                    <p> 성장하는 기록가들을 위한 <br> 독서 소셜 플랫폼 </p>
+                </div>
+                <div class="onboarding-web-outro-sp">
+                    <p class="onboarding-web-outro-sp"> 책:오의 다른 이야기가 궁금하다면?</p>
+                </div>
+            </div>
+            <div class="onboarding-web-btn-div">
+                <a href="{% url 'books:main' %}">
+                    <button class="btn btn--yellow--reverse"> 책:오 시작하기 </button>
+                </a>
+            </div>
+</article>
+
+
+
+
+
+
+  <!-- 슬라이드 JS (추후 JS 파일로 옮길 예정)-->
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Initialize Swiper -->
+  <script>
+
+// Book-info-swiper
+let bookReviewSwiper = new Swiper(".bookReviewSwiper", {
+    slidesPerView: 1,
+    spaceBetween: 10,
+    loop: false,
+    centerSlide: 'true',
+    fade: 'true',
+    grabCursor: 'true',
+    autoplay:{disableOnInteraction: false},
+    pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+    },
+    dynamicBullets: true,
+    breakpoints: {
+        576: {
+        slidesPerView: 1,
+        spaceBetween: 80,
+        },
+        768: {
+        slidesPerView: 2,
+        spaceBetween: 80,
+        },
+        992: {
+        slidesPerView: 3,
+        spaceBetween: 80,
+        },  
+        1200: {
+        slidesPerView: 4,
+        spaceBetween: 50,
+        },  
+        1400: {
+        slidesPerView: 5,
+        spaceBetween: 50,
+        },  
+    },
+});
+</script>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load taggit_templatetags2_tags %}
+
+{% block content %}
+{% include 'nav.html' %}
+
+<!-- Reviews -->
+<div class="reviews">
+  <h3 class="reviews__title">리뷰 목록</h1>
+  <p class="reviews__wording">책:오 기록가들의 문장을 소개합니다.</p>
+</div>
+
+
+<!-- search-form -->
+<div class="book-search-form-wrap">
+  <form class="search-top-form" action="{% url 'books:search' %}" method="get">
+      <input class="book-search-input" type="search" name="search" id="rq" placeholder="검색어를 입력하세요.">
+  </form>
+  <i class="fa-solid fa-magnifying-glass"></i>
+</div>
+
+
+<!-- Review-list -->
+<section class="review-list">
+  <div class="container">
+
+    <!-- Review-item -->
+    <div class="infinite">
+      <div class="inflist" style="min-height: 500px;">
+        {% for review in review_list %}
+        <div class="review__item">
+          <!-- review-item-content -->
+          <div class="review__item__content" style="cursor: pointer; background-color: {{ review.color }};"
+            onclick="location.href='{% url 'reviews:detail' review.pk %}';">
+            {% if review.content != "" %}
+            <div class="review__item__content__quote">
+              <div class="up-quote">
+                <i class="fa-solid fa-quote-left fa-lg"></i>
+              </div>
+              <p class="text-center m-0">{{ review.content }}</p>
+              <div class="down-quote">
+                <i class="fa-solid fa-quote-right fa-lg"></i>
+              </div>
+            </div>
+            {% else %}
+            <img class="bookReviewCardImage border" src="{{ review.image.url }}" alt="">
+            {% endif %}
+          </div>
+          <!-- review-item-info -->
+          <div class="review__item__info">
+            <!-- review-item-proflie -->
+            <div class="review__item__proflie" onclick="location.href='{% url 'accounts:detail' review.user.pk %}';">
+              <div class="review__item__img">
+                <img src="{{ review.user.user_image }}" alt="review-write-image">
+              </div>
+              <div class="review__item__username">
+                {{ review.user.username }}
+              </div>
+            </div>
+            {% if request.user.is_authenticated %}
+            <!-- review-item-button -->
+            <div class="review__item__btn review-index-btn">
+              <!-- review-like-form -->
+              <form class="like-forms">
+                {% csrf_token %}
+                {% if user in review.like_user.all %}
+                <button id="like-{{ review.pk }}" type="submit">
+                  <i id="heart-{{ review.pk }}" class="fa-solid fa-heart fa-lg "data-action="provenlike" data-review-id="{{ review.pk }}"></i>
+                </button>
+                {% else %}
+                <button id="like-{{ review.pk }}" type="submit" >
+                  <i id="heart-{{ review.pk }}" class="fa-regular fa-heart fa-lg" data-action="provenlike" data-review-id="{{ review.pk }}"></i>
+                </button>
+                {% endif %}
+              </form>
+            </div>
+            {% else %}
+            <a href="{% url 'accounts:login' %}">
+              <span style="color: var(--gray-light-color); font-size: 14px;">로그인 이후 사용이 가능합니다.</span>
+            </a>
+            {% endif %}
+          </div>
+          <!-- review-item-tag -->
+          <div class="review-item-tag mb-3 d-flex justify-content-between align-items-center">
+            <div class="review-item-tags d-flex">
+              {% get_tags_for_object review as "tags" %}
+              {% for tag in tags %}
+              <p class="m-0">#<a class="tag-btn" style="font-size: 14px; margin-right:3px; color: var(--gray-dark-color);" onclick="sendTag(this)">{{tag.name}}</a></p>
+              {% endfor %}
+            </div>
+            <div class="created-date">
+              {% if review.created_string == False %}
+              {{ review.registered_date|date:'m월 d일' }}
+              {% else %}
+              {{ review.created_string }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="m-5">
+          <div class="d-flex flex-column align-items-center" style="min-height: 500px;">
+            <p style="color: var(--gray-dark-color);">리뷰가 하나도 없어요...</p>
+            <!-- button: review create guide -->
+            <button type="button" class="btn btn--main" data-bs-toggle="modal" data-bs-target="#review-guide">
+              리뷰 작성
+            </button>
+            <!-- reivew-guide-modal -->
+            <div class="modal fade" id="review-guide" tabindex="-1" aria-labelledby="review-guide" aria-hidden="true">
+              <!-- modal-dialog -->
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <!-- modal-body -->
+                  <div class="modal-body">
+                    <p class="record-text">기록할 유형을 선택해주세요 ✍️</p>
+                    <!-- Record-wrap -->
+                    <div class="record-wrap">
+                      <!-- record-wording -->
+                      <a href="{% url 'reviews:pk_create_txt' %}">
+                        <div class="record-wording">
+                          <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="hover"
+                            colors="primary:#6c757d,secondary:#6c757d" stroke="30" style="width:250px;height:250px">
+                          </lord-icon>
+                          <h5 class="word">문장 기록</h5>
+                        </div>
+                      </a>
+                      <!-- record-photo -->
+                      <a href="{% url 'reviews:pk_create_img' %}">
+                        <div class="record-photo">
+                          <lord-icon src="https://cdn.lordicon.com/vixtkkbk.json" trigger="hover"
+                            colors="primary:#6c757d,secondary:#6c757d" stroke="30" style="width:250px;height:250px">
+                          </lord-icon>
+                          <h5>사진 기록</h5>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" style="display:none;">
+      {% if review_list.has_other_pages %}
+      <ul>
+        {% if review_list.has_previous %}
+        <li><a href="?&page={{ review_list.previous_page_number }}" class="prevPage">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><span>&laquo;</span></li>
+        {% endif %}
+        <li class="totalpagenum">{{totalpagenum}}</li>
+        {% if review_list.has_next %}
+        <li><a href="?&page={{ review_list.next_page_number }}" class="nextPage">&raquo;</a></li>
+        {% else %}
+        <li class="disabled"><span>&raquo;</span></li>
+        {% endif %}
+      </ul>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+
+<!--Shortcuts-->
+<div class="write-gb-top">
+  <a type="button" href="#">
+    <lord-icon src="https://cdn.lordicon.com/hpxruznz.json" trigger="hover" colors="primary:#6c757d"
+      style="width:50px;height:100px">
+    </lord-icon>
+  </a>
+</div>
+<!-- Write-global-button -->
+<div class="write-gb">
+  <button type="button" data-bs-toggle="modal" data-bs-target="#review-guide">
+    <lord-icon src="https://cdn.lordicon.com/puvaffet.json" trigger="hover" colors="primary:#6c757d,secondary:#92B4EC">
+    </lord-icon>
+  </button>
+</div>
+<!-- reivew-guide-modal -->
+<div class="modal fade" id="review-guide" tabindex="-1" aria-labelledby="review-guide" aria-hidden="true">
+  <!-- modal-dialog -->
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- modal-body -->
+      <div class="modal-body">
+        <p class="record-text">기록할 유형을 선택해주세요 ✍️</p>
+        <!-- Record-wrap -->
+        <div class="record-wrap">
+          <!-- record-wording -->
+          <a href="{% url 'reviews:pk_create_txt' %}">
+            <div class="record-wording">
+              <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="hover"
+                colors="primary:#6c757d,secondary:#6c757d" stroke="30" style="width:250px;height:250px">
+              </lord-icon>
+              <h5 class="word">문장 기록</h5>
+            </div>
+          </a>
+          <!-- record-photo -->
+          <a href="{% url 'reviews:pk_create_img' %}">
+            <div class="record-photo">
+              <lord-icon src="https://cdn.lordicon.com/vixtkkbk.json" trigger="hover"
+                colors="primary:#6c757d,secondary:#6c757d" stroke="30" style="width:250px;height:250px">
+              </lord-icon>
+              <h5>사진 기록</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Review-index-JS -->
+<div class="findme" style="width:auto; height:400px;">
+  <!-- 검색목록 -->
+  <script>
+    $( function() {
+      var availableTags = [
+          {% for review in reviews %}
+            "{{review.content|cut:"\""|truncatewords:400}}",
+          {% endfor %}
+      ];
+      $( "#rq" ).autocomplete({
+        source: availableTags
+      });
+    } );
+  </script>
+</div>
+
+{% endblock content %}
+
+<!-- JS -->
+{% block js %}
+<!-- review-create-modal -->
+<script>
+  // reivew-create-modal
+  const wording = document.querySelector(".record-wording");
+  const wordingIcon = wording.querySelector('lord-icon');
+  const wordingHtag = wording.querySelector('h5');
+  const photo = document.querySelector('.record-photo');
+  const photoIcon = photo.querySelector('lord-icon');
+  const photoHtag = photo.querySelector('h5');
+
+  wording.addEventListener('mouseenter', () => {
+      wordingIcon.setAttribute('colors', 'primary:#92B4EC,secondary:#92B4EC');
+      wordingHtag.style.color = '#92B4EC';
+  });
+  wording.addEventListener('mouseleave', () => {
+      wordingIcon.setAttribute('colors', 'primary:#6c757d,secondary:#6c757d');
+      wordingHtag.style.color = '#6c757d';
+  });
+  photo.addEventListener('mouseenter', () => {
+      photoIcon.setAttribute('colors', 'primary:#92B4EC,secondary:#92B4EC');
+      photoHtag.style.color = '#92B4EC';
+  });
+  photo.addEventListener('mouseleave', () => {
+      photoIcon.setAttribute('colors', 'primary:#6c757d,secondary:#6c757d');
+      photoHtag.style.color = '#6c757d';
+  });
+</script>
+
+<!-- Send-tag -->
+<script>
+  function sendTag(e) {
+    let value = e.innerText;
+    location.href = 'http://book5-env.eba-pcyrdwbs.ap-northeast-2.elasticbeanstalk.com/search/?search=' + value;
+  }
+</script>
+
+
+<!-- review-infinite -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="{% static 'js/rv-infinite.js' %}"></script>
+
+
+<!-- CDN axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- Likes -->
+
+
+<script src="{% static 'js/write-btn.js' %}"></script>
+{% endblock js %}

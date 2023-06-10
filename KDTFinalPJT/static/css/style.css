@@ -1,0 +1,372 @@
+/* global */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR&display=swap');
+@import './common.css';
+/* accounts */
+@import './accounts/login.css';
+@import './groups/index.css';
+@import './accounts/signup.css';
+@import './accounts/update.css';
+@import './accounts/delete.css';
+@import './accounts/detail.css';
+/* books */
+@import './books/index.css';
+@import './books/detail.css';
+@import './books/onboarding.css';
+@import './books/main.css';
+@import './books/search.css';
+/* reviews */
+@import './reviews/index.css';
+@import './reviews/create.css';
+@import './reviews/detail.css';
+/* Groups */
+@import './groups/detail.css';
+@import './groups/create.css';
+/* Notices */
+@import './notices/index.css';
+@import './notices/detail.css';
+
+
+
+
+/* Root */
+:root {
+  /* Color */
+  --white-color: #fff;
+  --main-color: #92B4EC;
+  --yellow-color: #FFE69A;
+  --red-color: #D42B37;
+  --gray-color: #adb5bd;
+  --gray-light-color: #e6e5e5;
+  --gray-dark-color: #6c757d;
+  --dark-color: #3E3E3E;
+
+  /* Font-size */
+  --xlarge-font: 36px;
+  --large-font: 24px;
+  --middle-font: 18px;
+  --small-font: 14px;
+}
+
+
+/* Nav */
+body>.nav {
+  width: 100%;
+  padding: 15px 0;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(15px);
+  position: fixed;
+  top: 0;
+  z-index: 9;
+}
+
+.nav-box {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.nav__logo img {
+  width: 45px;
+  border-radius: 10px;
+}
+
+.nav-wrap {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav__list {
+  display: flex;
+  align-items: center;
+  margin-left: 50px;
+}
+
+.nav__list__item {
+  margin: 0 10px;
+}
+
+.nav__list__item a {
+  opacity: .6;
+}
+
+.nav__list__item a:hover {
+  opacity: 1;
+  color: var(--dark-color);
+  font-weight: 500;
+}
+
+.nav-wrap-inner {
+  display: flex;
+  align-items: center;
+}
+
+.nav__user {
+  display: flex;
+  align-items: center;
+}
+
+.nav__user__image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: 18px;
+}
+
+.nav__user__btn {
+  padding: 4px 20px;
+  border-radius: 5px;
+  margin-left: 15px;
+}
+
+.nav-icon-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.nav-icon-wrap>i {
+  color: var(--main-color);
+  margin-right: 20px;
+}
+
+/* Nav-Search */
+.nav__search {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  position: relative;
+}
+
+.nav__search input {
+  width: 36px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--main-color);
+  box-sizing: border-box;
+  border-radius: 5px;
+  outline: none;
+  background-color: #fff;
+  color: #777;
+  font-size: 12px;
+  transition: width .4s;
+}
+
+.nav__search input:focus {
+  width: 190px;
+  border-color: var(--main-color);
+}
+
+.nav__search .material-icons {
+  height: 24px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 5px;
+  margin: auto;
+  color: var(--main-color);
+  transition: .2s;
+}
+
+.nav__search.focused .material-icons {
+  opacity: 0;
+}
+
+.nav-toogle-btn {
+  display: none;
+  color: var(--main-color);
+}
+
+.nav-toogle-btn:hover {
+  color: var(--main-color);
+}
+
+
+/* Write-global-button */
+.write-gb {
+  z-index: 9;
+  position: fixed;
+  bottom: 75px;
+  right: 130px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--white-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, .3);
+}
+
+.write-gb-top {
+  z-index: 9;
+  position: fixed;
+  bottom: 160px;
+  right: 145px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--white-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, .3);
+}
+
+.write-gb button lord-icon {
+  width: 60px;
+  height: 60px;
+}
+
+
+/* Media - Nav toggle */
+@media screen and (max-width: 1400px) {
+  .write-gb {
+    right: 100px;
+  }
+  .write-gb-top {
+    right: 115px;
+
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .nav__list__item a {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .nav-box {
+    flex-direction: column;
+  }
+
+  .nav-wrap {
+    flex-direction: column;
+  }
+
+  .nav__list {
+    flex-direction: column;
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+    display: none;
+  }
+
+  .nav__list__item {
+    padding: 10px 0;
+  }
+
+  .nav-wrap-inner {
+    flex-direction: column;
+  }
+
+  .nav-icon-wrap {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+  }
+
+  .nav__user {
+    margin-top: 10px;
+    display: none;
+  }
+
+  .nav__user__image {
+    margin: 0;
+  }
+
+  .nav-toogle-btn {
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 32px;
+  }
+
+  .nav__list.active,
+  .nav__user.active {
+    display: flex;
+  }
+
+  .write-gb {
+    right: 50px;
+    width: 70px;
+    height: 70px;
+  }
+  .write-gb-top {
+    right: 60px;
+    width: 50px;
+    height:50px;
+    bottom: 150px;
+  }
+  .nav__user__btn {
+    margin: 0 8px;
+  }
+}
+
+
+/* footer */
+.footer {
+  display: flex;
+  align-items: center;
+  background-color: var(--main-color);
+}
+
+.footer-txt {
+  font-size: var(--small-font);
+  color: var(--white-color);
+  margin: 0;
+}
+
+.info-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
+}
+
+.members-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
+}
+
+.members-github {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.members-img:hover {
+  filter: brightness(110%);
+}
+
+
+/* Media */
+@media screen and (max-width: 576px) {
+  .write-gb {
+    right: 30px;
+    width: 65px;
+    height: 65px;
+  }
+
+  .write-gb button lord-icon {
+    width: 50px;
+    height: 50px;
+  }
+  .write-gb-top {
+    right:35px;
+  }
+
+  /* Footer */
+  .footer .container .row {
+    flex-direction: column;
+    align-items: center;
+  }
+  .info-box {
+    margin-bottom: 0;
+  }
+}

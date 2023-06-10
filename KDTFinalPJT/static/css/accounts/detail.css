@@ -1,0 +1,152 @@
+.mypage {
+  min-height: 750px;
+  margin-top: 100px;
+}
+
+.myinfo {
+  position: relative;
+  margin: 200px 0 100px;
+}
+
+.myinfo-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-left: 100px;
+}
+
+.profile-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropdown-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  margin-left: 10px;
+}
+
+.dropdown-icon {
+  color: var(--main-color);
+  transition: all ease-in-out .4s;
+}
+
+.dropdown-icon:hover {
+  transform: scale(1.2);
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
+
+.dropdown-menu {
+  padding: 0;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  padding: 10px 0;
+}
+
+.user-name {
+  word-break: keep-all;
+}
+
+.status-message {
+  max-width: 500px;
+  opacity: .8;
+  color: var(--dark-color);
+}
+
+/* tab 메뉴  */
+.tab-area {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.tab-area input {
+  display: none;
+}
+
+.tab-area label:hover {
+  cursor: pointer;
+}
+
+.tab-area input:checked+label {
+  border: none;
+  border-radius: 5px 5px 0 0;
+  margin: 0;
+  padding: 10px;
+  background-color: var(--main-color);
+  color: white;
+}
+
+.tab-area input:not(:checked)+label {
+  border: none;
+  border-radius: 5px 5px 0 0;
+  margin: 0;
+  padding: 10px;
+}
+
+.tab-content {
+  position: relative !important;
+  width: 100% !important;
+  display: none !important;
+  border-top: 2px solid var(--main-color) !important;
+  padding: 75px 10px !important;
+}
+
+.tab-create-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px 10px;
+}
+
+#tab1:checked~#content1,
+#tab2:checked~#content2,
+#tab3:checked~#content3,
+#tab4:checked~#content4,
+#tab5:checked~#content5 {
+  display: flex !important;
+}
+
+/* tab 내용 */
+.tab-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-book-img {
+  margin: 15px auto;
+  width: 80%;
+  border-radius: 0 10px 10px 0;
+  box-shadow: 5px 5px 20px 0 rgba(0, 0, 0, .2);
+}
+
+.tab-book-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--dark-color);
+  text-align: center;
+  min-height: 50px;
+}
+
+@media screen and (max-width: 768px) {
+  .myinfo-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-left: 0;
+  }
+}

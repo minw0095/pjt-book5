@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+{% include 'nav.html' %}
+
+<!-- Main-swiper -->
+<section class="main-swiper">
+  <div class="container">
+    <!-- Swiper -->
+    <div class="swiper mainSwiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <img src="https://cdn.pixabay.com/photo/2022/11/02/22/46/festive-season-7566217_1280.jpg" alt="main-swiper-image">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://cdn.pixabay.com/photo/2014/01/29/04/37/book-254048_1280.jpg" alt="main-swiper-image">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://cdn.pixabay.com/photo/2018/04/06/23/22/notebook-3297317_1280.jpg" alt="main-swiper-image">
+        </div>
+        <div class="swiper-slide">
+          <img src="https://cdn.pixabay.com/photo/2022/08/14/11/29/friend-7385640_1280.jpg" alt="main-swiper-image">
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Main-book -->
+<section class="main-book">
+  <div class="container">
+    <!-- Main-book-top -->
+    <div class="mb__top">
+      <h3 class="mb__title">인기 도서 목록</h3>
+      <a href="{% url 'books:index' %}">
+        <span class="me-1">더보기</span><i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+    <!-- Main-book-list -->
+    <div class="mb__list">
+      {% for book in books %}
+      <!-- Main-book-item -->
+      <a href="{% url 'books:detail' book.pk %}">
+        <div class="mb__list__item">
+          <div class="mb__list__image">
+            <div class="image-cover">
+              <p class="m-0"><i class="fa-solid fa-pencil"></i> {{ book.book_review_set.count }}</p>
+              <p><i class="fa-solid fa-heart"></i> {{ book.like_user.count }}</p>
+            </div>
+            <img src="{{ book.bookcover }}" alt="bookcover">
+          </div>
+          <div class="mb__list__item__text">
+            <p class="fw-bold">{{ book.bookname }}</p>
+            <p>{{ book.authors }}</p>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- Main-review -->
+<section class="main-review">
+  <div class="container">
+    <!-- Main-review-top -->
+    <div class="mr__top">
+      <h3 class="mr__title">인기 리뷰 목록</h3>
+      <a href="{% url 'reviews:index' %}">
+        <span class="me-1">더보기</span><i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+    <!-- Main-review-list -->
+    <div class="mr__list">
+      {% for review in reviews %}
+      <!-- Main-review-item -->
+      <div class="mr__list__item">
+        <div class="mr__item__content p-0" style="cursor: pointer; background-color: {{ review.color }};"
+          onclick="location.href='{% url 'reviews:detail' review.pk %}';">
+          {% if review.content != "" %}
+          <div class="review__item__content__quote">
+            <div class="up-quote">
+              <i class="fa-solid fa-quote-left fa-lg"></i>
+            </div>
+            <p class="text-center m-0">{{ review.content }}</p>
+            <div class="down-quote">
+              <i class="fa-solid fa-quote-right fa-lg"></i>
+            </div>
+          </div>
+          {% else %}
+          <img class="bookReviewCardImage border" src="{{ review.image.url }}" alt="">
+          {% endif %}
+        </div>
+        <div class="mr__item__writer">
+          <a href="{% url 'accounts:detail' review.user.pk %}" class="d-flex align-items-center">
+            <div class="mr__item__writer-image">
+              <img src="{{ review.user.user_image }}" alt="review-writer-image">
+            </div>
+            <div class="mr__item__writer-name">
+              <p>{{ review.user.username }}</p>
+            </div>
+          </a>
+          {% if request.user.is_authenticated %}
+          <div class="mr__item-like">
+            <!-- review-item-button -->
+            <div class="review__item__btn">
+              <div id="like-count-{{ review.pk }}" class="m-0 me-2 fw-bold" style="color: var(--main-color);">
+                {{ review.like_user.count }}
+              </div>
+              <!-- review-like-form -->
+              <form class="like-forms" data-review-id="{{ review.pk }}">
+                {% csrf_token %}
+                {% if user in review.like_user.all %}
+                <button id="like-{{ review.pk }}" type="submit">
+                  <i id="heart-{{ review.pk }}" class="fa-solid fa-heart fa-lg"></i>
+                </button>
+                {% else %}
+                <button id="like-{{ review.pk }}" type="submit">
+                  <i id="heart-{{ review.pk }}" class="fa-regular fa-heart fa-lg"></i>
+                </button>
+                {% endif %}
+              </form>
+              <!--공유하기-->
+              <i type="button" class="fa-solid fa-share-nodes fa-lg" data-bs-toggle="modal"
+                data-bs-target="#exampleModal"></i>
+              <!-- Modal -->
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header justify-content-center">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">공유하기</h1>
+                    </div>
+                    <div class="modal-body">
+                      <div class="d-flex justify-content-center">
+                        <a href="javascript:sendLinkFacebook()"><i class="bi bi-facebook mx-3"
+                            style="font-size: 52px;"></i></a>
+                        <a href="javascript:sendLinkTwitter()"><i class="bi bi-twitter mx-3"
+                            style="font-size: 52px;"></i></a>
+                        <script>
+                          function sendLinkFacebook() {
+                            var facebook_share_url = "https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}";
+                            window.open(facebook_share_url,
+                              'Share on Facebook',
+                              'scrollbars=no, width=500, height=500');
+                          }
+
+                          function sendLinkTwitter() {
+                            var twitter_share_text = "{{ post.title }}";
+                            var twitter_share_url = "{{ request.build_absolute_uri }}";
+                            window.open("https://twitter.com/share?text=" + twitter_share_text + "&url=" + twitter_share_url,
+                              'Share on Twitter',
+                              'scrollbars=no, width=500, height=500');
+                          }
+                        </script>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <a href="{% url 'accounts:login' %}">
+            <span style="color: var(--dark-color); font-size: 14px;">로그인 이후 사용이 가능합니다.</span>
+          </a>
+          {% endif %}
+
+        </div>
+      </div>
+      {% empty %}
+      <div class="my-5 d-flex flex-column align-items-center">
+        <p style="color: var(--gray-color);">책:오의 첫 리뷰 주인공이 되어주세요!</p>
+        <button class="btn btn--main mt-3" data-bs-toggle="modal" data-bs-target="#review-guide">리뷰 작성</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- Main-metting -->
+<section class="main-metting">
+  <div class="container">
+    <!-- Main-metting-top -->
+    <div class="mm__top">
+      <h3 class="mm__title">진행중인 모임 목록</h3>
+      <a href="{% url 'groups:index' %}">
+        <span class="me-1">더보기</span><i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+    <!-- Main-metting-list -->
+    <div class="mm__list">
+      <!-- main-metting-item -->
+      {% for group in groups %}
+      <div class="mm__list__item">
+        <div class="card">
+          <div class="card-image">
+            <a href="{% url 'groups:detail' group.pk %}">
+              <img src="{{ group.image.url }}" class="card-img-top" alt="metting-image">
+            </a>
+          </div>
+          <div class="card-body">
+            <h6 class="card-title ellipsis-01" style="margin-bottom: 20px;">{{ group.title }}</h6>
+            <p class="card-text" style="font-size: 14px;">
+              <span class="ellipsis-01" style="font-size: 14px;">소개: {{ group.introduce }}<br /></span>
+              <span class="ellipsis-01" style="font-size: 14px;">장소: {{ group.place }}<br /></span>
+              인원: {{ group.number }}명<br />
+              일시: {{ group.meeting_date|date:"m.d(l) A h:i" }}<br />
+            </p>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="my-5 d-flex flex-column align-items-center">
+        <p style="color: var(--gray-color);">책:오의 첫 모임 주인공이 되어주세요!</p>
+        <a href="{% url 'groups:create' %}">
+          <button class="btn btn--main mt-3">모임 생성</button>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Write-global-button -->
+<div class="write-gb">
+  <button type="button" data-bs-toggle="modal" data-bs-target="#review-guide-main">
+    <lord-icon src="https://cdn.lordicon.com/puvaffet.json" trigger="hover" colors="primary:#6c757d,secondary:#92B4EC">
+    </lord-icon>
+  </button>
+</div>
+<!-- reivew-guide-modal -->
+<div class="modal fade" id="review-guide-main" tabindex="-1" aria-labelledby="review-guide" aria-hidden="true">
+  <!-- modal-dialog -->
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- modal-body -->
+      <div class="modal-body">
+        <p class="record-text">기록할 유형을 선택해주세요 ✍️</p>
+        <!-- Record-wrap -->
+        <div class="record-wrap">
+          <!-- record-wording -->
+          <a href="{% url 'reviews:pk_create_txt' %}">
+            <div class="record-wording">
+              <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="hover"
+                colors="primary:#6c757d,secondary:#6c757d" stroke="30" style="width:250px;height:250px">
+              </lord-icon>
+              <h5 class="word">문장 기록</h5>
+            </div>
+          </a>
+          <!-- record-photo -->
+          <a href="{% url 'reviews:pk_create_img' %}">
+            <div class="record-photo">
+              <lord-icon src="https://cdn.lordicon.com/vixtkkbk.json" trigger="hover"
+                colors="primary:#6c757d,secondary:#6c757d" stroke="30" style="width:250px;height:250px">
+              </lord-icon>
+              <h5>사진 기록</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+
+
+{% block js %}
+
+<!-- CDN axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- review-create-modal -->
+<script>
+  // reivew-create-modal
+  const wording = document.querySelector(".record-wording");
+  const wordingIcon = wording.querySelector('lord-icon');
+  const wordingHtag = wording.querySelector('h5');
+  const photo = document.querySelector('.record-photo');
+  const photoIcon = photo.querySelector('lord-icon');
+  const photoHtag = photo.querySelector('h5');
+
+  wording.addEventListener('mouseenter', () => {
+      wordingIcon.setAttribute('colors', 'primary:#92B4EC,secondary:#92B4EC');
+      wordingHtag.style.color = '#92B4EC';
+  });
+  wording.addEventListener('mouseleave', () => {
+      wordingIcon.setAttribute('colors', 'primary:#6c757d,secondary:#6c757d');
+      wordingHtag.style.color = '#6c757d';
+  });
+  photo.addEventListener('mouseenter', () => {
+      photoIcon.setAttribute('colors', 'primary:#92B4EC,secondary:#92B4EC');
+      photoHtag.style.color = '#92B4EC';
+  });
+  photo.addEventListener('mouseleave', () => {
+      photoIcon.setAttribute('colors', 'primary:#6c757d,secondary:#6c757d');
+      photoHtag.style.color = '#6c757d';
+  });
+</script>
+
+<!-- Likes -->
+<script>
+  const forms = document.querySelectorAll('.like-forms')
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  forms.forEach((form) => {
+    form.addEventListener('submit', function (evnet) {
+      event.preventDefault();
+      const reviewId = event.target.dataset.reviewId
+      // request axios
+      axios({
+        method: 'post',
+        url: `/reviews/${reviewId}/like/`,
+        headers: { 'X-CSRFToken': csrftoken }, // csrf token
+      })
+        // response views
+        .then((response) => {
+          const isLiked = response.data.is_liked
+          const heartBtn = document.querySelector(`#heart-${reviewId}`)
+          const likeCountTag = document.querySelector(`#like-count-${reviewId}`)
+          const likeCount = response.data.like_count
+          likeCountTag.innerText = likeCount
+          if (isLiked === true) {
+            heartBtn
+              .classList
+              .remove('fa-regular')
+            heartBtn
+              .classList
+              .add('fa-solid')
+            heartBtn.style.color = 'var(--main-color)';
+          } else {
+            heartBtn
+              .classList
+              .remove('fa-solid')
+            heartBtn
+              .classList
+              .add('fa-regular')
+            heartBtn.style.color = 'var(--main-color)';
+          }
+        })
+        .catch((error) => {
+          console.log(error.response)
+        })
+    })
+  })
+</script>
+
+<script src="{% static 'js/write-btn.js' %}"></script>
+
+{% endblock js %}

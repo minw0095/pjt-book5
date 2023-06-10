@@ -1,0 +1,527 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% autoescape on %}
+{% block content %}
+{% include 'nav.html' %}
+
+<!-- Review-detail -->
+<div class="review-detail-wrap">
+  <div class="container">
+
+    <!-- review-countent & book-info-->
+    {% if review.content != "" %}
+    <div class="detail-top-wrap">
+    {% else %}
+    <div class="detail-top-wrap detail-top-wrap-img">
+    {% endif %}
+      <!-- review-content-dot -->
+      {% if request.user == review.user %}
+        <div class="review-content-dot">
+          <div class="btn-group dropstart">
+            <button type="button" class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+              <i class="fa-solid fa-ellipsis fa-2x"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-lg-end">
+              <li><a class="dropdown-item" href="{% url 'reviews:update' review.pk %}">수정하기</a></li>
+              <li><a class="dropdown-item" href="{% url 'reviews:delete' review.pk %}" style="color: var(--red-color);">삭제하기</a></li>
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+      <!-- Review Content -->
+      {% if review.content != "" %}
+        <!-- Review-Text -->
+        <div class="review-content" style="background-color: {{ review.color }};">
+          <div class="review__item__content__quote">
+            <div class="up-quote">
+              <i class="fa-solid fa-quote-left fa-lg"></i>
+            </div>
+            <p id="id_content">{{ review.content }}</p>
+            <div class="down-quote">
+              <i class="fa-solid fa-quote-right fa-lg"></i>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <!-- Review-Image -->
+        <div class="review-content-image" style="background-color: {{ review.color }};">
+          <img src="{{ review.image.url }}" alt="">
+        </div>
+      {% endif %}
+      <!-- Book-info -->
+      <div class="book-info">
+        <a href="{% url 'books:detail' book.pk %}">
+          <img src="{{ book.bookcover }}" alt="bookcover">
+        </a>
+        <div class="text">
+          <p class="title">{{ book.bookname }}</p>
+          <p class="author">{{ book.authors }}</p>
+        </div>
+      </div>
+    
+    </div>
+    
+
+    <!-- review-writer -->
+    {% if review.content != "" %}
+    <div class="detail-bottom-wrap">
+    {% else %}
+    <div class="detail-bottom-wrap detail-bottom-wrap-img">
+    {% endif %}
+      <!-- review-writer -->
+      <div class="review-writer">
+  
+        <!-- review-like -->
+        {% if request.user.is_authenticated %}
+        <div class="review-like">
+          <form class="review-like-forms" data-review-id="{{ review.pk }}">
+            {% csrf_token %}
+            {% if request.user in review_like_user.all %}
+              <button id="like-{{ review.pk }}" class="button like-user-button" type="submit">
+                <i class="fa-regular fa-heart fa-lg"></i>
+              </button>
+            {% else %}
+              <button id="like-{{ review.pk }}" class="button" type="submit">
+                <i class="fa-regular fa-heart fa-lg"></i>
+              </button>
+            {% endif %}
+          </form>
+        </div>
+        {% endif %}
+        <div class="review-like-count">
+          <p id="like-count">좋아요 {{ like_count }}</p>
+          <p id="like-count">댓글 {{ comments_count }}</p>
+        </div>
+  
+        <!-- review-writer-info -->
+        <div class="review-writer-info">
+          <a href="{% url 'accounts:detail' review.user.pk %}">
+            <img src="{{ review.user.user_image }}" alt="writer-image">
+          </a>
+          <div class="username">
+            <p>{{ review.user.username }}</p>
+            <p>{{ review.updated_at }}</p>
+          </div>
+          {% if request.user.is_authenticated %}
+          <!-- review-user-followings -->
+          <div class="follow">
+            <form id="follow-form" data-user-id="{{ review.user.pk }}">
+              {% csrf_token %}
+              {% if request.user != review.user %}
+                {% if request.user in review_user_follwers.all %}
+                <button type='submit' class="btn btn--main--reverse">언팔로우</button>
+                {% else %}
+                <button type='submit' class="btn btn--main">팔로우</button>
+                {% endif %}
+              {% endif %}
+            </form>
+          </div>
+          {% else %}
+          <a href="{% url 'accounts:login' %}">
+            <span style="margin-left: 30px; color: var(--white-color); font-size: 14px;">로그인 이후 사용이 가능합니다.</span>
+          </a>
+          {% endif %}
+        </div>
+        
+        <!-- review-tags -->
+        <div class="review-tags">
+          {% for tag in review.tags.all %}
+            <p># <a class="tag-btn" onclick="sendTag(this)">{{tag.name}}</a></p>
+          {% endfor %}
+        </div>
+
+      </div>
+      <!-- Comment-create -->
+      <div class="comment-create">
+        {% if request.user.is_authenticated %}
+          <img src="{{ request.user.user_image }}" alt="my-image">
+        {% endif %}
+        <form id="comment-form" data-review-id="{{ review.pk }}">
+          {% csrf_token %}
+          <input type="text" name="content" placeholder=" 댓글 남기기" onkeyup="checkword(this, 100)" maxlength="100" required>
+          <button type="submit" class="btn">게시</button>
+        </form>
+      </div>
+      <!-- Comment-list -->
+      <div class="comment-list">
+        {% for comment in comments %}
+        <!-- Comment-item -->
+        <div class="comment-item">
+          <!-- comment-item-top -->
+          <div class="comment-top">
+            <div class="writer">
+              <img src="{{ comment.user.user_image }}" alt="comment-user-image">
+              <div class="">
+                <p>{{ comment.user.username }}</p>
+                <p>{{ comment.created_at|date:'Y-m-d' }}</p>
+              </div>
+            </div>
+            <div class="button">
+              {% if request.user == comment.user %}
+                <button class="comment-del" onclick="comment_delete(this)">
+                  <span id="comment-delete-{{ comment.pk }}" data-commentdel-id="{{ comment.pk }}" class="material-symbols-outlined" style="font-size: 28px;">delete</span>
+                </button>
+              {% else %}
+              <i class="fa-regular fa-heart fa-lg me-2"></i>
+              {% endif %}
+            </div>
+          </div>
+          <!-- comment-item-bottom -->
+          <div class="comment-item-bottom">
+            <p>{{ comment.content }}</p>
+          </div>
+        </div>
+        {% empty %}
+        <div class="my-5" style="color: var(--gray-color);">
+          <p>댓글이 없어요...</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}
+{% endautoescape %}
+
+
+{% block js %}
+
+<!-- CDN axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- Sweet alert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+<!-- Send-tag -->
+<script>
+  function sendTag(e) {
+    let value = e.innerText;
+    location.href = 'http://book5-env.eba-pcyrdwbs.ap-northeast-2.elasticbeanstalk.com/search/?search=' + value;
+  }
+</script>
+
+
+<!-- Check-word -->
+<script>
+  function checkword(obj, maxByte) {
+		let strValue = obj.value;
+		let strLen = strValue.length;
+		let totalByte = 0;
+		let len = 0;
+		let oneChar = "";
+		let str2 = "";
+
+		for (let i = 0; i < strLen; i++) {
+			oneChar = strValue.charAt(i);
+			if (escape(oneChar).length > 4) {
+				totalByte += 2;
+			} else {
+				totalByte++;
+			}
+
+			// 입력한 문자 길이보다 넘치면 잘라내기 위해 저장
+			if (totalByte <= maxByte) {
+				len = i + 1;
+			}
+		}
+
+		// 넘어가는 글자는 자른다.
+		if (totalByte > maxByte) {
+      // Sweet alert
+      Swal.fire({
+        icon: 'question',
+        iconHtml: '!',
+        title: '너무 길어요!',
+        text: '100자 이내로 작성해주세요!',
+        confirmButtonColor: '#92B4EC',
+      })
+}
+	}
+</script>
+
+<!-- Likes -->
+<script>
+  const forms = document.querySelectorAll('.review-like-forms')
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  forms.forEach((form) => {
+    form.addEventListener('submit', function(evnet) {
+      event.preventDefault();
+      const reviewId = event.target.dataset.reviewId
+      // request axios
+      axios({
+        method: 'post',
+        url: `/reviews/${reviewId}/like/`,
+        headers: {'X-CSRFToken': csrftoken}, // csrf token
+      })
+        // response views
+        .then((response) => {
+          const isLiked = response.data.is_liked
+          const likeBtn = document.querySelector(`#like-${reviewId}`)
+          const likeIcon = likeBtn.querySelector('i')
+          const likeCountTag = document.querySelector('#like-count')
+          const likeCount = response.data.like_count
+          likeCountTag.innerText = '좋아요 ' + likeCount
+          if (isLiked === true) {
+            likeBtn.style.background = "var(--yellow-color)";
+            likeIcon.style.color = "var(--white-color)";
+          } else {
+            likeBtn.style.background = "var(--white-color)";
+            likeIcon.style.color = "var(--yellow-color)";
+          }
+        })
+        .catch((error) => {
+          console.log(error.response)
+        })
+    })
+  })
+</script>
+
+
+<!-- Followings -->
+<script>
+  const Form = document.querySelector('#follow-form')
+
+  Form.addEventListener('submit', function(event) {
+    event.preventDefault()
+    const userId = event.target.dataset.userId
+    // request axios
+    axios({
+      method: 'post',
+      url: `/accounts/${userId}/follow/`,
+      headers: {'X-CSRFToken': csrftoken}, // csrf token
+    })
+      // response views
+      .then((response) => {
+        const isFollowed = response.data.is_followed
+        const followBtn = Form.querySelector('button');
+        if (isFollowed === true) {
+          followBtn.classList.remove('btn--white');
+          followBtn.classList.add('btn--white--reverse');
+          followBtn.innerText = '언팔로우';
+        } else {
+          followBtn.classList.remove('btn--white--reverse');
+          followBtn.classList.add('btn--white');
+          followBtn.innerText = '팔로우';
+        }
+      })
+      .catch((error) => {
+        console.log(error.response)
+      })
+  })
+</script>
+
+
+<!-- Comment Create -->
+<script>
+  const commentForm = document.querySelector('#comment-form')
+
+  commentForm.addEventListener('submit', function(event){
+    event.preventDefault()
+    axios({
+      method: 'post',
+      url: `/reviews/${event.target.dataset.reviewId}/comment_create/`,
+      headers: {'X-CSRFToken': csrftoken},
+      data: new FormData(commentForm)
+    })
+    .then(response => {
+      console.log(response.data)
+      commentForm.reset()
+      const comments = document.querySelector('.comment-list')
+      comments.textContent = ""
+      const comment_data = response.data.comment_data
+      const user = response.data.user
+
+      for (let i = 0; i < comment_data.length; i++){
+        const review_pk = response.data.review_pk
+        if (user === comment_data[i].user_pk){
+          comments.insertAdjacentHTML('beforeend',  
+          `
+          <div class="comment-item">
+            <div class="comment-top">
+              <div class="writer">
+                <img src="${ comment_data[i].userImage }" alt="comment-user-image">
+                <div class="">
+                  <p>${ comment_data[i].userName }</p>
+                  <p>${ comment_data[i].commentDate }</p>
+                </div>
+              </div>
+              <div class="button">
+                <button onclick="comment_delete(this)">
+                  <span id="comment-delete-${ comment_data[i].commentPk }" data-commentdel-id="${ comment_data[i].commentPk }" class="material-symbols-outlined" style="font-size: 28px;">delete</span>
+                </button>
+              </div>
+            </div>
+            <div class="comment-item-bottom">
+              <p>${ comment_data[i].content }</p>
+            </div>
+          </div>
+          `)
+        } else {
+          comments.insertAdjacentHTML('beforeend',  
+          `
+          <div class="comment-item">
+            <div class="comment-top">
+              <div class="writer">
+                <img src="${ comment_data[i].userImage }" alt="comment-user-image">
+                <div class="">
+                  <p>${ comment_data[i].userName }</p>
+                  <p>${ comment_data[i].commentDate }</p>
+                </div>
+              </div>
+              <div class="button">
+                <i class="fa-regular fa-heart fa-lg me-2"></i>
+              </div>
+            </div>
+            <div class="comment-item-bottom">
+              <p>${ comment_data[i].content }</p>
+            </div>
+          </div>
+          `)
+        }
+      }
+    })
+  })
+
+</script>
+
+
+<!-- Comment Delete -->
+<script>
+  
+  const comment_delete = (e) => {
+    console.log(e)
+    axios({
+      method: 'post',
+      headers: {'X-CSRFToken': csrftoken},
+      url: `/reviews/comment_delete/${event.target.dataset.commentdelId}/`,
+    })
+    .then(response => {
+      console.log(response.data)
+      const comments = document.querySelector('.comment-list')
+      comments.textContent = ""
+      const comment_data = response.data.comment_data
+      const user = response.data.user
+      for (let i = 0; i < comment_data.length; i++){
+        const review_pk = response.data.review_pk
+        if (user === comment_data[i].user_pk){
+          comments.insertAdjacentHTML('beforeend',
+          `
+          <div class="comment-item">
+            <div class="comment-top">
+              <div class="writer">
+                <img src="${ comment_data[i].userImage }" alt="comment-user-image">
+                <div class="">
+                  <p>${ comment_data[i].userName }</p>
+                  <p>${ comment_data[i].commentDate }</p>
+                </div>
+              </div>
+              <div class="button">
+                <button onclick="comment_delete(this)">
+                  <span id="comment-delete-${ comment_data[i].commentPk }" data-commentdel-id="${ comment_data[i].commentPk }" class="material-symbols-outlined" style="font-size: 28px;">delete</span>
+                </button>
+              </div>
+            </div>
+            <div class="comment-item-bottom">
+              <p>${ comment_data[i].content }</p>
+            </div>
+          </div>
+          `)
+        } else {
+          comments.insertAdjacentHTML('beforeend',  
+          `
+          <div class="comment-item">
+            <div class="comment-top">
+              <div class="writer">
+                <img src="${ comment_data[i].userImage }" alt="comment-user-image">
+                <div class="">
+                  <p>${ comment_data[i].userName }</p>
+                  <p>${ comment_data[i].commentDate }</p>
+                </div>
+              </div>
+              <div class="button">
+                <i class="fa-regular fa-heart fa-lg me-2"></i>
+              </div>
+            </div>
+            <div class="comment-item-bottom">
+              <p>${ comment_data[i].content }</p>
+            </div>
+          </div>
+          `)
+    }
+  }
+})}
+</script>
+
+
+<!-- Snow JS -->
+<script>
+  svg_str = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512"><path fill="currentColor" d="M440.5 345.8L408.1 327c11.8-12.3 26-18.2 26.2-18.3 7.5-3 11.4-11.4 8.9-19.1-1.9-5.9-7.4-9.8-13.5-9.8-1.9 0-3.7.4-5.5 1.1-1 .4-24.4 10-41.9 31.2l-96.3-56 96.3-56c17.5 21.2 40.8 30.8 41.9 31.2 1.8.7 3.6 1.1 5.5 1.1 6.1 0 11.6-4 13.5-9.8 2.5-7.7-1.4-16.1-8.9-19.1-.1-.1-14.3-6-26.2-18.3l32.4-18.8c7.2-4.2 9.6-13.4 5.5-20.6-2.7-4.7-7.7-7.6-13.1-7.6-2.6 0-5.3.7-7.6 2L393.1 159c-4.5-16.2-2.7-31.4-2.6-32 1.1-8.1-4.1-15.6-12-17.3-1-.2-2-.3-3-.3-7.1 0-13 5.2-14.1 12.4-.2 1.1-3.6 26 6.1 52.2l-96 56v-99.2c26.9-4.7 46.8-20.2 47.7-20.9 3.1-2.5 5.1-6 5.4-10 .3-4-.9-7.8-3.6-10.8-2.9-3.2-7-5.1-11.4-5.1-3.4 0-6.8 1.2-9.5 3.3-.1.1-12.2 9.4-28.6 13.6V63.1c0-8.2-7.1-15.1-15.5-15.1s-15.5 6.9-15.5 15.1v37.5c-16.3-4.2-28.4-13.5-28.6-13.6-2.7-2.1-6-3.3-9.5-3.3-4.4 0-8.5 1.9-11.4 5.1-2.7 3-4 7-3.6 10.9.3 3.9 2.3 7.4 5.4 9.9.9.7 20.8 16.2 47.7 20.9v99.2l-96-56c9.6-26 6.2-51.1 6-52.2-1-7.2-6.9-12.4-14-12.4-1 0-2 .1-3 .3-7.9 1.6-13.2 9.3-12 17.3 0 .2 2 15.5-2.6 31.9L86.6 140c-2.3-1.3-4.9-2-7.6-2-5.4 0-10.4 2.9-13.1 7.6-4.1 7.2-1.7 16.5 5.5 20.6l32.4 18.8c-11.7 12.1-25.7 18.1-26.2 18.3-7.5 3-11.4 11.4-8.9 19.1 1.9 5.9 7.4 9.8 13.5 9.8 1.9 0 3.7-.4 5.5-1.1 1-.4 24.4-10 41.9-31.2l96.3 56-96.3 56c-17.5-21.2-40.8-30.8-41.9-31.2-1.8-.7-3.6-1.1-5.5-1.1-6.1 0-11.6 4-13.5 9.8-2.5 7.7 1.4 16 8.9 19.1.5.2 14.5 6.2 26.2 18.3l-32.4 18.8c-7.2 4.2-9.6 13.4-5.5 20.6 2.7 4.7 7.7 7.6 13.1 7.6 2.6 0 5.3-.7 7.6-2l32.3-18.8c4.6 16.5 2.6 31.8 2.6 32-1.2 8 4.1 15.7 12 17.3 1 .2 2 .3 3 .3 7.1 0 13-5.2 14.1-12.4.2-1.1 3.6-26-6.1-52.2l96-56v99.2c-26.9 4.7-46.8 20.2-47.7 20.9-3.1 2.5-5.1 6-5.4 10-.3 4 .9 7.8 3.6 10.8 2.9 3.2 7 5.1 11.4 5.1 3.4 0 6.8-1.2 9.5-3.3.1-.1 12.3-9.4 28.6-13.6v37.5c0 8.2 7.1 15.1 15.5 15.1s15.5-6.9 15.5-15.1v-37.5c16.3 4.2 28.4 13.5 28.6 13.6 2.7 2.1 6.1 3.3 9.5 3.3 4.4 0 8.5-1.9 11.4-5.1 2.7-3 4-7 3.6-10.9-.3-3.9-2.3-7.4-5.4-9.9-.9-.7-20.8-16.2-47.7-20.9V282l96 56c-9.6 26-6.2 51.1-6 52.2 1 7.2 6.9 12.4 14 12.4 1 0 2-.1 3-.3 7.9-1.6 13.1-9.2 12-17.3-.1-.5-1.9-15.7 2.6-32l32.2 18.8c2.3 1.3 4.9 2 7.6 2 5.4 0 10.4-2.9 13.1-7.6 4.1-6.9 1.7-16.2-5.5-20.4z"/></svg>`
+  snow = new DOMParser().parseFromString(svg_str, 'text/xml').children[0]
+  
+  // set the svg's position to fixed
+  snow.style.position = "fixed"
+  snow.style.top = '-24px'
+  
+  // new snowflake
+  let newSnow = () => {
+    // create a new snow
+    let clonedSnow = snow.cloneNode(true);
+  
+    // assign to it a random left
+    let left = Math.floor(document.body.offsetWidth * Math.random())
+    clonedSnow.style.left = left + 'px';
+    clonedSnow.style.color = 'var(--white-color)';
+  
+    // add it to the dom
+    document.body.append(clonedSnow)
+  
+    // assign to it a random speed
+    let time = Math.max(10 * Math.random(), 5) * 1000
+  
+    let anim = clonedSnow.animate([ { top: (window.innerHeight + 24) + 'px' } ], { duration: time, fill: 'forwards' })
+  
+    // garbage collection
+    anim.onfinish = el => el.target.effect.target.remove()
+  
+    return snow
+  }
+  
+  wait = time => new Promise(res => setTimeout(res, time))
+  
+  let asyncIterate = async (start, iterations, fn) => {
+    let i = start;
+    let call = res => fn(res)
+      .then(async result => {
+        if (i >= iterations) return result;
+        i++
+        return await call(i)
+      });
+    return await call(i);
+  }
+  
+  // also don't run it for people who do not 
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: true)').matches) {
+    console.log('No snow for you because you (prefers-reduced-motion)')
+  } else {
+    asyncIterate(0, Infinity, async () => {
+      // wait 10 seconds if the user is not active
+      // if (navigator.userActivation && !navigator.userActivation.isActive) return await wait(10000);
+      if (document.visibilityState && document.visibilityState != 'visible') return await wait(10000).then(() => console.log('page was not visible'));
+      await wait(Math.max(3 * Math.random(), 1) * 300)
+      newSnow();
+    })
+  }
+</script>
+
+<script>
+  var content = document.querySelector("#id_content").innerHTML
+  content = content.replaceAll(/(\n|\r\n)/g, "<br>");
+  console.log(content)
+  document.querySelector("#id_content").innerHTML = content
+</script>
+
+{% endblock js %}
